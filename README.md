@@ -3,16 +3,17 @@
 </p>
 
 # Carburanti Italia per Home Assistant
+![GitHub Stars](https://img.shields.io/github/stars/domusteck/domusteck-carburanti_italia?style=social)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
 [![Maintainer](https://img.shields.io/badge/maintainer-Domusteck-blue.svg)](https://www.domusteck.it)
-[![PayPal](https://img.shields.io/badge/PayPal-Donate-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=hdjweb@hotmail.it)
+[![PayPal](https://img.shields.io/badge/PayPal-Donate-blue.svg)](mailto:hdjweb@hotmail.it)
 
 Questa integrazione personalizzata permette di monitorare in tempo reale i prezzi dei carburanti (Benzina, Diesel, GPL, Metano) in Italia. I dati sono integrati per funzionare perfettamente con Home Assistant, permettendoti di trovare sempre il distributore più conveniente nella tua zona.
 
 ## ✨ Caratteristiche principali
 * ⛽ **Copertura Nazionale**: Dati aggiornati sui prezzi dei carburanti in tutta Italia.
 * 📊 **Sensori Dettagliati**: Monitoraggio per diverse tipologie di carburante e punti vendita.
-* 🔄 **Efficienza**: Utilizzo del `DataUpdateCoordinator` per aggiornamenti costanti senza rallentare il sistema.
+* 🔄 **Efficienza**: Utilizzo del `DataUpdateCoordinator` per aggiornamenti costanti senza sovraccaricare il sistema.
 * 🛠️ **Configurazione Semplice**: Supporto completo a `config_flow` per un'installazione guidata tramite interfaccia grafica.
 
 ## 🚀 Installazione
@@ -57,4 +58,4 @@ Hai riscontrato un problema o vuoi suggerire una funzione?
 - **GitHub**: Apri una [Issue](https://github.com/domusteck/domusteck-carburanti_italia/issues) se trovi un bug nel codice.
 
 ---
-*Creato con passione da Domusteck. Se ti piace il mio lavoro, lascia una ⭐ su questa repository!*
+*Creato con passione da Domusteck. Se ti piace il mio lavoro, lascia una ⭐ su questa repository: aiuta il progetto a crescere e a raggiungere più utenti!*
