@@ -1,0 +1,16 @@
+{
+  "domain": "carburanti_italia",
+  "name": "Carburanti Italia",
+  "version": "1.0.0",
+  "documentation": "https://example.com",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": ["@AntonioM.Longo"],
+  "iot_class": "cloud_polling",
+  "integration_type": "service",
+  "config_flow": true,
+  "icon": "/custom_components/carburanti_italia/icon.png",
+  "logo": "/custom_components/carburanti_italia/logo.png",
+  "loggers": ["custom_components.carburanti_italia"]
+}
+
