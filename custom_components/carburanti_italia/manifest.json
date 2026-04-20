@@ -2,7 +2,7 @@
   "domain": "carburanti_italia",
   "name": "Carburanti Italia",
   "version": "1.0.0",
-  "documentation": "https://example.com",
+  "documentation": "https://github.com/domusteck/domusteck-carburanti_italia",
   "requirements": [],
   "dependencies": [],
   "codeowners": ["@AntonioM.Longo"],
