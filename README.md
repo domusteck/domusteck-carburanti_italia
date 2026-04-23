@@ -2,6 +2,13 @@
   <img src="custom_components/carburanti_italia/images/logo.png" alt="Domusteck Carburanti Italia Logo" width="300">
 </p>
 
+## 🚀 Carburanti Italia GPS Mod
+
+Fork con:
+- filtro GPS
+- raggio dinamico
+- ordinamento intelligente
+
 # Carburanti Italia per Home Assistant
 ![GitHub Stars](https://img.shields.io/github/stars/domusteck/domusteck-carburanti_italia?style=social)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-orange.svg)](https://github.com/hacs/integration)
