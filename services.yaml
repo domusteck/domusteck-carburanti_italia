@@ -1,7 +1,0 @@
-dump_api:
-  name: Dump API
-  description: Esegue una chiamata all'API del MISE e stampa il JSON nei log.
-
-refresh_ids:
-  name: Refresh IDs
-  description: Aggiorna manualmente i dati delle stazioni e forza il refresh del coordinatore.
