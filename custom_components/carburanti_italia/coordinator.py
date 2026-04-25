@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 import aiohttp
+from datetime import timedelta, datetime
 
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -10,7 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
-from .const import DOMAIN
+from .const import DOMAIN, UPDATE_INTERVAL_HOURS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,13 +23,16 @@ class CarburantiItaliaCoordinator(DataUpdateCoordinator):
         """Inizializza il coordinatore."""
         self.hass = hass
         self.entry = entry
-        self.api = api  # API come oggetto
+        self.api = api
+
+        # Timestamp dell'ultimo aggiornamento riuscito
+        self.last_update_success_time: datetime | None = None
 
         super().__init__(
             hass,
             _LOGGER,
             name=DOMAIN,
-            update_interval=None,  # aggiornamento manuale
+            update_interval=timedelta(hours=UPDATE_INTERVAL_HOURS),
         )
 
     async def _async_update_data(self):
@@ -41,9 +45,20 @@ class CarburantiItaliaCoordinator(DataUpdateCoordinator):
         try:
             async with aiohttp.ClientSession() as session:
                 stations = await self.api.search_stations(
-                    session, city, province, fuel_type
+                    session=session,
+                    city=city,
+                    province=province,
+                    fuel_type=fuel_type,
+                    radius=15  # raggio fisso 15 km
                 )
-                return stations  # <-- LISTA, non dict
+
+                if not isinstance(stations, list):
+                    raise UpdateFailed("Formato dati non valido: attesa lista di stazioni.")
+
+                # Aggiorniamo il timestamp SOLO se il refresh è riuscito
+                self.last_update_success_time = datetime.now()
+
+                return stations
 
         except Exception as err:
             raise UpdateFailed(f"Errore aggiornamento dati: {err}") from err

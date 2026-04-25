@@ -6,4 +6,4 @@ CONF_PROVINCE = "province"
 CONF_FUEL_TYPE = "fuel_type"
 
 # Intervallo aggiornamento (in ore)
-UPDATE_INTERVAL_HOURS = 3
+UPDATE_INTERVAL_HOURS = 1

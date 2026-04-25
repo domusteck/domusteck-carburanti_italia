@@ -35,14 +35,16 @@ class CarburantiItaliaConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            city = user_input.get(CONF_CITY)
-            province = user_input.get(CONF_PROVINCE)
+            city = user_input.get(CONF_CITY, "").strip()
+            province = user_input.get(CONF_PROVINCE, "").strip()
             fuel = user_input.get(CONF_FUEL_TYPE)
 
             if not city or not province:
                 errors["base"] = "invalid_input"
+            elif fuel not in SUPPORTED_FUELS:
+                errors["base"] = "invalid_fuel"
             else:
-                # Creiamo un ID unico basato su città + provincia + carburante
+                # ID unico basato su città + provincia + carburante
                 unique_id = f"{city}_{province}_{fuel}".lower().replace(" ", "_")
 
                 await self.async_set_unique_id(unique_id)

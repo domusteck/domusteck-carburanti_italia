@@ -15,32 +15,36 @@ async def async_setup_entry(hass, entry, async_add_entities):
     coordinator = hass.data[DOMAIN][entry.entry_id]
 
     city = entry.data.get("city")
+    fuel_type = entry.data.get("fuel_type")
 
     entities = []
 
     # Sensore numero stazioni
-    entities.append(CarburantiItaliaCountSensor(coordinator, city))
+    entities.append(CarburantiItaliaCountSensor(coordinator, city, fuel_type))
 
-    # Sensore top 20 (versione leggera)
-    entities.append(CarburantiItaliaTop20Sensor(coordinator, city))
+    # Sensore top 20
+    entities.append(CarburantiItaliaTop20Sensor(coordinator, city, fuel_type))
 
     # Sensori stazione 1–20
     for i in range(20):
-        entities.append(CarburantiItaliaStationSensor(coordinator, city, i))
+        entities.append(CarburantiItaliaStationSensor(coordinator, city, fuel_type, i))
 
     async_add_entities(entities)
 
 
 # ---------------------------------------------------------
-# SENSOR: NUMERO STAZIONI (LEGGERO)
+# SENSOR: NUMERO STAZIONI
 # ---------------------------------------------------------
 class CarburantiItaliaCountSensor(CoordinatorEntity, SensorEntity):
     """Numero totale di stazioni trovate."""
 
-    def __init__(self, coordinator, city):
+    def __init__(self, coordinator, city, fuel_type):
         super().__init__(coordinator)
-        self._attr_name = f"Carburanti {city} Numero Stazioni"
-        self._attr_unique_id = f"{DOMAIN}_{city}_count"
+        self.city = city
+        self.fuel_type = fuel_type.lower()
+
+        self._attr_name = f"Carburanti {city} {fuel_type} Numero Stazioni"
+        self._attr_unique_id = f"{DOMAIN}_{city}_{self.fuel_type}_count"
 
     @property
     def native_value(self):
@@ -49,9 +53,12 @@ class CarburantiItaliaCountSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        stations = self.coordinator.data or []
         return {
-            "count": len(stations)
+            "count": len(self.coordinator.data or []),
+            "ultimo_aggiornamento": (
+                self.coordinator.last_update_success_time.strftime("%H:%M")
+                if self.coordinator.last_update_success_time else None
+            )
         }
 
     @property
@@ -60,37 +67,51 @@ class CarburantiItaliaCountSensor(CoordinatorEntity, SensorEntity):
 
 
 # ---------------------------------------------------------
-# SENSOR: TOP 20 (VERSIONE MEDIA, ATTRIBUTI RIDOTTI)
+# SENSOR: TOP 20 (ARRICCHITO)
 # ---------------------------------------------------------
 class CarburantiItaliaTop20Sensor(CoordinatorEntity, SensorEntity):
-    """Restituisce la lista delle stazioni in forma ridotta."""
+    """Restituisce la lista delle stazioni in forma ridotta (max 20)."""
 
-    def __init__(self, coordinator, city):
+    def __init__(self, coordinator, city, fuel_type):
         super().__init__(coordinator)
-        self._attr_name = f"Carburanti {city} Top 20"
-        self._attr_unique_id = f"{DOMAIN}_{city}_top20"
+        self.city = city
+        self.fuel_type = fuel_type.lower()
+
+        self._attr_name = f"Carburanti {city} {fuel_type} Top 20"
+        self._attr_unique_id = f"{DOMAIN}_{city}_{self.fuel_type}_top20"
 
     @property
     def native_value(self):
         stations = self.coordinator.data or []
-        return len(stations)
+        return min(len(stations), 20)
 
     @property
     def extra_state_attributes(self):
-        stations = self.coordinator.data or []
+        stations = (self.coordinator.data or [])[:20]
 
-        # Lista ridotta per evitare superamento 16 KB
+        # 🔥 VERSIONE PATCHATA: aggiunte latitude e longitude
         reduced = [
             {
                 "id": s.get("id"),
                 "name": s.get("name"),
                 "price": s.get("price"),
-                "address": s.get("address")
+                "address": s.get("address"),
+                "brand": s.get("brand"),
+                "brand_logo": s.get("brand_logo"),
+                "latitude": s.get("latitude"),
+                "longitude": s.get("longitude"),
             }
             for s in stations
         ]
 
-        return {"stations": reduced}
+        return {
+            "stations": reduced,
+            "fuel_type": self.fuel_type,
+            "ultimo_aggiornamento": (
+                self.coordinator.last_update_success_time.strftime("%H:%M")
+                if self.coordinator.last_update_success_time else None
+            )
+        }
 
     @property
     def icon(self):
@@ -98,16 +119,19 @@ class CarburantiItaliaTop20Sensor(CoordinatorEntity, SensorEntity):
 
 
 # ---------------------------------------------------------
-# SENSOR: STAZIONE SINGOLA (1–20)
+# SENSOR: STAZIONE SINGOLA (ARRICCHITO)
 # ---------------------------------------------------------
 class CarburantiItaliaStationSensor(CoordinatorEntity, SensorEntity):
     """Sensore per una singola stazione (prezzo + nome + indirizzo breve)."""
 
-    def __init__(self, coordinator, city, index):
+    def __init__(self, coordinator, city, fuel_type, index):
         super().__init__(coordinator)
+        self.city = city
+        self.fuel_type = fuel_type.lower()
         self.index = index
-        self._attr_name = f"{city} Stazione {index + 1}"
-        self._attr_unique_id = f"{DOMAIN}_{city}_station_{index}"
+
+        self._attr_name = f"{city} {fuel_type} Stazione {index + 1}"
+        self._attr_unique_id = f"{DOMAIN}_{city}_{self.fuel_type}_station_{index}"
 
     @property
     def native_value(self):
@@ -123,8 +147,7 @@ class CarburantiItaliaStationSensor(CoordinatorEntity, SensorEntity):
             if price is not None:
                 if address:
                     return f"{price} € — {name} ({address})"
-                else:
-                    return f"{price} € — {name}"
+                return f"{price} € — {name}"
 
         return None
 
@@ -133,7 +156,15 @@ class CarburantiItaliaStationSensor(CoordinatorEntity, SensorEntity):
         stations = self.coordinator.data or []
 
         if self.index < len(stations):
-            return stations[self.index]
+            attrs = stations[self.index].copy()
+
+            # 🔥 Aggiungiamo timestamp
+            attrs["ultimo_aggiornamento"] = (
+                self.coordinator.last_update_success_time.strftime("%H:%M")
+                if self.coordinator.last_update_success_time else None
+            )
+
+            return attrs
 
         return {}
 
